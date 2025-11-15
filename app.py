@@ -152,25 +152,30 @@ with col2:
 # ------------------------------------------------------
 if st.button("🔍 Predict Fraud"):
 
-    # Generate PCA values so the model receives 30 features
+    # --- 1. Generate 28 strong PCA fraud signals ---
     synthetic_pca = []
     for i in range(28):
-        # Fraud-like PCA values (real dataset has extreme PCA)
-        if random.random() > 0.5:
-            synthetic_pca.append(random.uniform(-25, -5))
-        else:
-            synthetic_pca.append(random.uniform(5, 25))
+        val = random.uniform(-20, 20)   # strong range
+        synthetic_pca.append(val)
 
-    # Full feature vector (Time + PCA + Amount)
+    # Debug: Print PCA length to ensure 28 values
+    print("Generated PCA count:", len(synthetic_pca))
+
+    # --- 2. Build full feature vector: 30 features ---
     input_features = [time] + synthetic_pca + [amount]
 
-    # Convert to numpy and scale
-    scaled = scaler.transform(np.array(input_features).reshape(1, -1))
+    # Debug: Print length (should be 30)
+    print("Final feature vector length:", len(input_features))
 
-    # Predict
+    # --- 3. Scale the input ---
+    input_array = np.array(input_features).reshape(1, -1)
+    scaled = scaler.transform(input_array)
+
+    # --- 4. Predict ---
     prediction = model.predict(scaled)[0]
     prob = model.predict_proba(scaled)[0][1] * 100
 
+    # --- 5. Output ---
     if prediction == 1:
         st.markdown(
             f'<div class="result" style="background-color:#B91C1C;">⚠ FRAUD DETECTED!<br><br>Risk Score: {prob:.2f}%</div>',
