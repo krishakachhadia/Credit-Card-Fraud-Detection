@@ -169,7 +169,7 @@ if st.button("🔍 Predict Fraud"):
 
     # 5. LOWER FRAUD THRESHOLD (fix)
     # If probability > 20% = FRAUD
-    threshold = 5
+    threshold = 10
     prediction = 1 if pred_proba > threshold else 0
 
    
