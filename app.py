@@ -147,42 +147,23 @@ with col2:
 # ------------------------------------------------------
 # PREDICTION
 # ------------------------------------------------------
-# ------------------------------------------------------
-# PREDICTION
-# ------------------------------------------------------
-if st.button("🔍 Predict Fraud"):
+# --- Predict ---
+pred_proba = model.predict_proba(scaled)[0][1] * 100
 
-    # --- 1. Generate 28 strong PCA fraud signals ---
-    synthetic_pca = []
-    for i in range(28):
-        val = random.uniform(-20, 20)   # strong range
-        synthetic_pca.append(val)
+# --- Lower Threshold for Fraud ---
+if pred_proba > 20:     # <-- Important Fix
+    prediction = 1
+else:
+    prediction = 0
 
-    # Debug: Print PCA length to ensure 28 values
-    print("Generated PCA count:", len(synthetic_pca))
-
-    # --- 2. Build full feature vector: 30 features ---
-    input_features = [time] + synthetic_pca + [amount]
-
-    # Debug: Print length (should be 30)
-    print("Final feature vector length:", len(input_features))
-
-    # --- 3. Scale the input ---
-    input_array = np.array(input_features).reshape(1, -1)
-    scaled = scaler.transform(input_array)
-
-    # --- 4. Predict ---
-    prediction = model.predict(scaled)[0]
-    prob = model.predict_proba(scaled)[0][1] * 100
-
-    # --- 5. Output ---
-    if prediction == 1:
-        st.markdown(
-            f'<div class="result" style="background-color:#B91C1C;">⚠ FRAUD DETECTED!<br><br>Risk Score: {prob:.2f}%</div>',
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            f'<div class="result" style="background-color:#14532D;">✔ LEGITIMATE TRANSACTION<br><br>Fraud Probability: {prob:.2f}%</div>',
-            unsafe_allow_html=True
-        )
+# --- Display ---
+if prediction == 1:
+    st.markdown(
+        f'<div class="result" style="background-color:#B91C1C;">⚠ FRAUD DETECTED!<br><br>Risk Score: {pred_proba:.2f}%</div>',
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        f'<div class="result" style="background-color:#14532D;">✔ LEGITIMATE TRANSACTION<br><br>Fraud Probability: {pred_proba:.2f}%</div>',
+        unsafe_allow_html=True
+    )
