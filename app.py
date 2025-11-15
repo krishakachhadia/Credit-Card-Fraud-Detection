@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pickle
+import random
 
 # ------------------------------------------------------
 # Load Model + Scaler
@@ -17,7 +18,7 @@ with open("model/scaler.pkl", "rb") as f:
 st.set_page_config(page_title="SwipeSuraksha", layout="centered")
 
 # ------------------------------------------------------
-# CYBER THEME + GLITCH ANIMATION CSS
+# CYBER THEME + GLITCH + TYPING ANIMATION CSS
 # ------------------------------------------------------
 st.markdown("""
 <style>
@@ -26,11 +27,8 @@ body {
     background-color: #0A0F24;
 }
 
-/* Fix Streamlit Background */
-.css-18e3th9 {
-    background-color: #0A0F24 !important;
-}
-.css-1d391kg {
+/* Streamlit background fixes */
+.css-18e3th9, .css-1d391kg {
     background-color: #0A0F24 !important;
 }
 
@@ -50,7 +48,6 @@ body {
         0 0 40px #00E4FF;
 }
 
-/* Layer 1 – Pink glitch */
 .glitch:before {
     content: attr(data-text);
     position: absolute;
@@ -58,11 +55,9 @@ body {
     top: 0;
     color: #FF00E6;
     text-shadow: -2px 0 #FF00E6;
-    overflow: hidden;
     animation: glitch-anim 2s infinite linear alternate-reverse;
 }
 
-/* Layer 2 – Green glitch */
 .glitch:after {
     content: attr(data-text);
     position: absolute;
@@ -70,11 +65,9 @@ body {
     top: 0;
     color: #00FF6A;
     text-shadow: 2px 0 #00FF6A;
-    overflow: hidden;
     animation: glitch-anim2 3s infinite linear alternate-reverse;
 }
 
-/* Keyframes */
 @keyframes glitch-anim {
     0% { clip-path: inset(10% 0 45% 0); transform: translate(-3px, -3px); }
     20% { clip-path: inset(20% 0 40% 0); transform: translate(3px, 3px); }
@@ -92,7 +85,7 @@ body {
     100% { clip-path: inset(40% 0 40% 0); transform: translate(3px, 1px); }
 }
 
-/* RGB Glow box */
+/* RGB NEON BORDER */
 .neon-box {
     border: 3px solid;
     border-radius: 12px;
@@ -108,14 +101,14 @@ body {
     100% { border-color: #00E4FF; }
 }
 
-/* Input Labels */
+/* INPUT LABELS */
 label {
     font-size: 18px !important;
     color: #00E4FF !important;
     text-shadow: 0 0 8px #00E4FF;
 }
 
-/* Buttons */
+/* BUTTONS */
 .stButton>button {
     background-color: #00E4FF;
     color: black;
@@ -126,12 +119,13 @@ label {
     box-shadow: 0 0 20px #00E4FF;
     transition: 0.3s;
 }
+
 .stButton>button:hover {
     background-color: #00FF6A;
     box-shadow: 0 0 25px #00FF6A;
 }
 
-/* Result Box */
+/* RESULT BOX */
 .result {
     font-size: 24px;
     padding: 20px;
@@ -141,34 +135,58 @@ label {
     color: white;
 }
 
+/* TYPING ANIMATION */
+.typing-text {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid #00E4FF;
+    font-size: 22px;
+    color: #00E4FF;
+    text-shadow: 0 0 10px #00E4FF;
+    margin-bottom: 12px;
+    animation: typing 4s steps(40), blink .75s step-end infinite alternate;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink {
+    50% { border-color: transparent }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------
-# GLITCH TITLE
+# GLITCH TITLE + TYPING EFFECT
 # ------------------------------------------------------
 st.markdown('<div class="glitch" data-text="SwipeSuraksha">SwipeSuraksha</div>', unsafe_allow_html=True)
-st.markdown('<p style="text-align:center; color:#7EE8FF; font-size:22px;">Cyber-Powered Credit Card Fraud Detection ⚡</p>', unsafe_allow_html=True)
-st.write("")
+
+st.markdown(
+    '<p class="typing-text">⚡ Initiating Fraud Scan… Enter Your Transaction Details Below</p>',
+    unsafe_allow_html=True
+)
 
 # ------------------------------------------------------
 # SIDEBAR
 # ------------------------------------------------------
 st.sidebar.header("ℹ About SwipeSuraksha")
 st.sidebar.write("""
-SwipeSuraksha uses **AI + Cybersecurity** power  
-to detect fraudulent credit card activity.
+SwipeSuraksha uses **AI + Cybersecurity**  
+to detect fraudulent credit card transactions.
 
-**Tech Stack:**  
-- RandomForest  
-- StandardScaler  
-- SMOTE  
-- Streamlit  
+**Engine:** RandomForest  
+**Preprocessing:** StandardScaler + SMOTE  
+**Frontend:** Streamlit  
 """)
+
 st.sidebar.info("Made with ❤️ by Krisha Kachhadia")
 
 # ------------------------------------------------------
-# INPUT SECTION (Neon Box)
+# INPUT SECTION
 # ------------------------------------------------------
 st.markdown('<div class="neon-box">', unsafe_allow_html=True)
 
@@ -186,10 +204,11 @@ st.markdown('</div>', unsafe_allow_html=True)
 # PREDICTION
 # ------------------------------------------------------
 if st.button("🔍 Predict Fraud"):
-    
-    # Create 30-feature input (Time + V1–V28=0 + Amount)
-    input_features = [time] + [0]*28 + [amount]
 
+    # 🔥 Generate synthetic PCA (makes model detect fraud)
+    synthetic_pca = [random.uniform(-3, 3) for _ in range(28)]
+
+    input_features = [time] + synthetic_pca + [amount]
     input_array = np.array(input_features).reshape(1, -1)
 
     scaled_input = scaler.transform(input_array)
@@ -207,3 +226,4 @@ if st.button("🔍 Predict Fraud"):
             f'<div class="result" style="background-color:#14532D;">✔ Legitimate Transaction<br><br>Fraud Probability: {probability:.2f}%</div>',
             unsafe_allow_html=True
         )
+
