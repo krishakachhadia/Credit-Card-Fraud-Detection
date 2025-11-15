@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 # Load model
-with open("model/model.pkl") as f:
+with open("model/model.pkl", "rb") as f:
     model = pickle.load(f)
 
 st.title("Real-Time Credit Card Fraud Detection")
