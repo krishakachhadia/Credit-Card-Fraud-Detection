@@ -150,7 +150,16 @@ with col2:
 if st.button("🔍 Predict Fraud"):
 
     # Generate synthetic PCA features (so model can detect fraud)
-    synthetic_pca = [random.uniform(-3, 3) for _ in range(28)]
+    # Fraud-like PCA values (based on real fraud patterns)
+  synthetic_pca = []
+
+  for i in range(28):
+    # some PCA features in fraud cases are highly negative, some highly positive
+    if random.random() > 0.5:
+        synthetic_pca.append(random.uniform(-25, -5))  # strong negative fraud signal
+    else:
+        synthetic_pca.append(random.uniform(5, 25))     # strong positive fraud signal
+
     input_features = [time] + synthetic_pca + [amount]
 
     scaled = scaler.transform(np.array(input_features).reshape(1, -1))
