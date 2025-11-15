@@ -147,23 +147,40 @@ with col2:
 # ------------------------------------------------------
 # PREDICTION
 # ------------------------------------------------------
-# --- Predict ---
-pred_proba = model.predict_proba(scaled)[0][1] * 100
+# ------------------------------------------------------
+# PREDICTION
+# ------------------------------------------------------
+if st.button("🔍 Predict Fraud"):
 
-# --- Lower Threshold for Fraud ---
-if pred_proba > 20:     # <-- Important Fix
-    prediction = 1
-else:
-    prediction = 0
+    # 1. Generate 28 PCA features
+    synthetic_pca = []
+    for i in range(28):
+        synthetic_pca.append(random.uniform(-20, 20))  # strong PCA values
 
-# --- Display ---
-if prediction == 1:
-    st.markdown(
-        f'<div class="result" style="background-color:#B91C1C;">⚠ FRAUD DETECTED!<br><br>Risk Score: {pred_proba:.2f}%</div>',
-        unsafe_allow_html=True
-    )
-else:
-    st.markdown(
-        f'<div class="result" style="background-color:#14532D;">✔ LEGITIMATE TRANSACTION<br><br>Fraud Probability: {pred_proba:.2f}%</div>',
-        unsafe_allow_html=True
-    )
+    # 2. Create full feature vector (30 features)
+    input_features = [time] + synthetic_pca + [amount]
+
+    # 3. Convert to numpy and SCALE IT
+    input_array = np.array(input_features).reshape(1, -1)
+    scaled = scaler.transform(input_array)   # <-- IMPORTANT (creates 'scaled')
+
+    # 4. Predict probability
+    pred_proba = model.predict_proba(scaled)[0][1] * 100
+
+    # 5. LOWER FRAUD THRESHOLD (fix)
+    # If probability > 20% = FRAUD
+    prediction = 1 if pred_proba > 20 else 0
+
+    # 6. Display result
+    if prediction == 1:
+        st.markdown(
+            f'<div class="result" style="background-color:#B91C1C;">'
+            f'⚠ FRAUD DETECTED!<br><br>Risk Score: {pred_proba:.2f}%</div>',
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            f'<div class="result" style="background-color:#14532D;">'
+            f'✔ LEGITIMATE TRANSACTION<br><br>Fraud Probability: {pred_proba:.2f}%</div>',
+            unsafe_allow_html=True
+        )
